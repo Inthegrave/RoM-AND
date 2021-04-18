@@ -537,7 +537,7 @@ void CvGameTextMgr::setEspionageMissionHelp(CvWStringBuffer &szBuffer, const CvU
 
 
 void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit, bool bOneLine, bool bShort,
-	bool bColorAllegiance) // f1rpo (from AdvCiv)
+	bool bCombatOdds) // f1rpo (from AdvCiv)
 {
 	PROFILE_FUNC();
 
@@ -550,7 +550,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit, 
 	bool bAlt = gDLL->altKey();
 	{	// <f1rpo>
 		char const* szColTag = "COLOR_UNIT_TEXT";
-		if (bColorAllegiance)
+		if (bCombatOdds)
 		{
 			szColTag = (pUnit->isEnemy(GC.getGameINLINE().getActiveTeam()) ?
 					"COLOR_NEGATIVE_TEXT" : "COLOR_POSITIVE_TEXT");
@@ -719,39 +719,43 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit, 
 		szString.append(szTempBuffer);
 	}
 	//TB SubCombat Mod begin
-	UnitCombatTypes eUnitCombatType;
-	bool bfirst = true;
-	bool bwrapup = false;
-	for (iI = 0; iI < GC.getNumUnitCombatInfos(); iI++)
+	/*	f1rpo: I've shortened the text,
+		but is it needed at all when showing combat odds? I think not. */
+	if (!bCombatOdds)
 	{
-		if (pUnit->hasCombatType((UnitCombatTypes)iI))
+		UnitCombatTypes eUnitCombatType;
+		bool bfirst = true;
+		bool bwrapup = false;
+		for (iI = 0; iI < GC.getNumUnitCombatInfos(); iI++)
 		{
-			bwrapup = true;
-			eUnitCombatType = ((UnitCombatTypes)iI);
-			if (bfirst)
+			if (pUnit->hasCombatType((UnitCombatTypes)iI))
 			{
-				// f1rpo: Space added
-				szTempBuffer.Format(L" (%s", GC.getUnitCombatInfo(eUnitCombatType).getDescription());
-				bfirst = false;
+				bwrapup = true;
+				eUnitCombatType = ((UnitCombatTypes)iI);
+				if (bfirst)
+				{
+					// f1rpo: Space added
+					szTempBuffer.Format(L" (%s", GC.getUnitCombatInfo(eUnitCombatType).getDescription());
+					bfirst = false;
+				}
+				else
+				{
+					szTempBuffer.Format(L", %s", GC.getUnitCombatInfo(eUnitCombatType).getDescription());
+				}
+				/*	<f1rpo> Hack, will only affect English. Chop off the " Units",
+					it's too long and not informative. */
+				size_t uiPos = szTempBuffer.find(L" Units");
+				if (uiPos != std::string::npos)
+					szTempBuffer = szTempBuffer.substr(0, uiPos); // </f1rpo>
+				szString.append(szTempBuffer);
 			}
-			else
-			{
-				szTempBuffer.Format(L", %s", GC.getUnitCombatInfo(eUnitCombatType).getDescription());
-			}
-			/*	<f1rpo> Hack, will only affect English. Chop off the " Units",
-				it's too long and not informative. */
-			size_t uiPos = szTempBuffer.find(L" Units");
-			if (uiPos != std::string::npos)
-				szTempBuffer = szTempBuffer.substr(0, uiPos); // </f1rpo>
+		}
+		if (bwrapup)
+		{
+			szTempBuffer.Format(L")");
 			szString.append(szTempBuffer);
 		}
 	}
-	if (bwrapup)
-	{
-		szTempBuffer.Format(L")");
-		szString.append(szTempBuffer);
-	}
-
 	for (iI = 0; iI < GC.getNumPromotionInfos(); ++iI)
 	{
 		if (pUnit->isHasPromotion((PromotionTypes)iI))

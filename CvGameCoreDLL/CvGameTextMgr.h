@@ -56,7 +56,7 @@ public:
 	DllExport void setMinimizePopupHelp(CvWString& szString, const CvPopupInfo & info);
 
 	void setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit, bool bOneLine = false, bool bShort = false,
-			bool bColorAllegiance = false); // f1rpo
+			bool bCombatOdds = false); // f1rpo
 	void setPlotListHelp(CvWStringBuffer &szString, CvPlot* pPlot, bool bOneLine, bool bShort);
 	bool setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot);
 	void setPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot);
