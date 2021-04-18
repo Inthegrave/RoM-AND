@@ -4406,6 +4406,13 @@ void CvGameTextMgr::appendCombatModifiers(CvWStringBuffer& szBuffer,
 		appendCombatModifier(szBuffer,
 				kAttacker.getKamikazePercent(),
 				params, "TXT_KEY_COMBAT_KAMIKAZE_MOD");
+		// Afforess (12/7/09): START
+		if (GC.getGameINLINE().isOption(GAMEOPTION_SAD))
+		{
+			appendCombatModifier(szBuffer,
+					kAttacker.surroundedDefenseModifier(&kPlot, &kDefender),
+					params, "TXT_KEY_COMBAT_SURROUNDED_DEFENSE_MOD");
+		} // Afforess: END
 		if (kDefender.isAnimal())
 		{
 			int iModifier = kAttacker.getUnitInfo().getAnimalCombatModifier();
@@ -4503,13 +4510,11 @@ void CvGameTextMgr::appendCombatModifiers(CvWStringBuffer& szBuffer,
 				params, "TXT_KEY_COMBAT_PLOT_UNIT_MOD",
 				GC.getInfo(kPlot.getFeatureType()).getTextKeyWide());
 	}
-	else
-	{
-		appendCombatModifier(szBuffer,
-				kDefender.terrainDefenseModifier(kPlot.getTerrainType()),
-				params, "TXT_KEY_COMBAT_PLOT_UNIT_MOD",
-				GC.getInfo(kPlot.getTerrainType()).getTextKeyWide());
-	}
+	//else (not mutually exclusive in AND)
+	appendCombatModifier(szBuffer,
+			kDefender.terrainDefenseModifier(kPlot.getTerrainType()),
+			params, "TXT_KEY_COMBAT_PLOT_UNIT_MOD",
+			GC.getInfo(kPlot.getTerrainType()).getTextKeyWide());
 }
 
 
