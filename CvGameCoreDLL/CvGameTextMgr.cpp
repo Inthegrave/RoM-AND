@@ -3753,158 +3753,184 @@ void CvGameTextMgr::appendCombatModifiers(CvWStringBuffer& szBuffer,
 		if (bOnlyGeneric)
 			return;
 		params.m_bGenericModifier = false;
-		appendCombatModifier(szBuffer,
-				kAttacker.unitClassAttackModifier(kDefender.getUnitClassType()),
-				params, "TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
-				GC.getInfo(kDefender.getUnitClassType()).getTextKeyWide());
-		if (kDefender.getUnitCombatType() != NO_UNITCOMBAT)
-		{
-			appendCombatModifier(szBuffer,
-					kAttacker.unitCombatModifier(kDefender.getUnitCombatType()),
-					params, "TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
-					GC.getInfo(kDefender.getUnitCombatType()).getTextKeyWide());
-		}
-		appendCombatModifier(szBuffer, kAttacker.domainModifier(
-				kDefender.getDomainType()),
-				params, "TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
-				GC.getInfo(kDefender.getDomainType()).getTextKeyWide());
-		if (kPlot.isCity(true, kDefender.getTeam()))
-		{
-			appendCombatModifier(szBuffer,
-					kAttacker.cityAttackModifier(),
-					params, "TXT_KEY_COMBAT_PLOT_CITY_MOD");
-		}
-		if (kPlot.isHills())
-		{
-			appendCombatModifier(szBuffer,
-					kAttacker.hillsAttackModifier(),
-					params, "TXT_KEY_COMBAT_PLOT_HILLS_MOD");
-		}
-		if (kPlot.getFeatureType() != NO_FEATURE)
-		{
-			appendCombatModifier(szBuffer,
-					kAttacker.featureAttackModifier(kPlot.getFeatureType()),
-					params, "TXT_KEY_COMBAT_PLOT_UNIT_MOD",
-					GC.getInfo(kPlot.getFeatureType()).getTextKeyWide());
-		}
-		else
-		{
-			appendCombatModifier(szBuffer,
-					kAttacker.terrainAttackModifier(kPlot.getTerrainType()),
-					params, "TXT_KEY_COMBAT_PLOT_UNIT_MOD",
-					GC.getInfo(kPlot.getTerrainType()).getTextKeyWide());
-		}
-		appendCombatModifier(szBuffer,
-				kAttacker.getKamikazePercent(),
-				params, "TXT_KEY_COMBAT_KAMIKAZE_MOD");
-		// Afforess (12/7/09): START
-		if (GC.getGameINLINE().isOption(GAMEOPTION_SAD))
-		{
-			appendCombatModifier(szBuffer,
-					kAttacker.surroundedDefenseModifier(&kPlot, &kDefender),
-					params, "TXT_KEY_COMBAT_SURROUNDED_DEFENSE_MOD");
-		} // Afforess: END
-		if (kDefender.isAnimal())
-		{
-			int iModifier = kAttacker.getUnitInfo().getAnimalCombatModifier();
-			// Moved into the isBarbarian block below
-			//iModifier -= GC.getInfo(GC.getGame().getHandicapType()).getAnimalCombatModifier();
-			appendCombatModifier(szBuffer, iModifier,
-					params, "TXT_KEY_UNIT_ANIMAL_COMBAT_MOD");
-		}
-		if (kDefender.isBarbarian())
-		{
-			// Show modifier from difficulty separately from unit abilities
-			int iModifier = -GC.getInfo(
-					GET_PLAYER(kAttacker.getOwner()). // K-Mod
-					getHandicapType()).getBarbarianCombatModifier();
-			// Moved from the isAnimal block above
-			if (kDefender.isAnimal())
-			{
-				iModifier -= GC.getInfo(
-						GET_PLAYER(kAttacker.getOwner()). // K-Mod
-						getHandicapType()).getAnimalCombatModifier();
-			}
-			appendCombatModifier(szBuffer, iModifier,
-					params, "TXT_KEY_MISC_FROM_HANDICAP");
-		}
-		// As in BtS - display modifiers that are typically negative last (river, amphib)
-		if (!kAttacker.isRiver() &&
-			// Don't check isRiverCrossing for non-adjacent tiles
-			stepDistance(kAttacker.plot(), &kPlot) == 1 &&
-			kAttacker.plot()->isRiverCrossing(directionXY(kAttacker.plot(), &kPlot)))
-		{
-			appendCombatModifier(szBuffer,
-					GC.getDefineINT("RIVER_ATTACK_MODIFIER"),
-					params, "TXT_KEY_COMBAT_PLOT_RIVER_MOD",
-					GC.getInfo(kPlot.getTerrainType()).getTextKeyWide());
-		}
-		if (!kAttacker.isAmphib() && !kPlot.isWater() && kAttacker.plot()->isWater())
-		{
-			appendCombatModifier(szBuffer,
-					GC.getDefineINT("AMPHIB_ATTACK_MODIFIER"),
-					params, "TXT_KEY_COMBAT_PLOT_AMPHIB_MOD",
-					GC.getInfo(kPlot.getTerrainType()).getTextKeyWide());
-		}
-		return;
+		params.m_bOnlyPositive = true;
+		appendAttackerModifiers(szBuffer, kPlot, kAttacker, kDefender, params);
+		params.m_bOnlyPositive = false;
+		params.m_bOnlyNegative = true;
+		appendAttackerModifiers(szBuffer, kPlot, kAttacker, kDefender, params);
 	}
-	if (!bOnlyNonGeneric)
+	else
+	{
+		if (!bOnlyNonGeneric)
+		{
+			appendCombatModifier(szBuffer,
+					kDefender.getExtraCombatPercent(),
+					params, "TXT_KEY_COMBAT_PLOT_EXTRA_STRENGTH");
+		}
+		if (bOnlyGeneric)
+			return;
+		params.m_bGenericModifier = false;
+		params.m_bOnlyPositive = true;
+		appendDefenderModifiers(szBuffer, kPlot, kAttacker, kDefender, params);
+		params.m_bOnlyPositive = false;
+		params.m_bOnlyNegative = true;
+		appendDefenderModifiers(szBuffer, kPlot, kAttacker, kDefender, params);
+	}
+}
+
+
+void CvGameTextMgr::appendAttackerModifiers(CvWStringBuffer& szBuffer,
+	CvPlot const& kPlot, CvUnit const& kAttacker, CvUnit const& kDefender,
+	CombatModifierOutputParams const& kParams)
+{
+	appendCombatModifier(szBuffer,
+			kAttacker.unitClassAttackModifier(kDefender.getUnitClassType()),
+			kParams, "TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
+			GC.getInfo(kDefender.getUnitClassType()).getTextKeyWide());
+	if (kDefender.getUnitCombatType() != NO_UNITCOMBAT)
 	{
 		appendCombatModifier(szBuffer,
-				kDefender.getExtraCombatPercent(),
-				params, "TXT_KEY_COMBAT_PLOT_EXTRA_STRENGTH");
+				kAttacker.unitCombatModifier(kDefender.getUnitCombatType()),
+				kParams, "TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
+				GC.getInfo(kDefender.getUnitCombatType()).getTextKeyWide());
 	}
-	if (bOnlyGeneric)
-		return;
-	params.m_bGenericModifier = false;
+	appendCombatModifier(szBuffer, kAttacker.domainModifier(
+			kDefender.getDomainType()),
+			kParams, "TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
+			GC.getInfo(kDefender.getDomainType()).getTextKeyWide());
+	if (kPlot.isCity(true, kDefender.getTeam()))
+	{
+		appendCombatModifier(szBuffer,
+				kAttacker.cityAttackModifier(),
+				kParams, "TXT_KEY_COMBAT_PLOT_CITY_MOD");
+	}
+	if (kPlot.isHills())
+	{
+		appendCombatModifier(szBuffer,
+				kAttacker.hillsAttackModifier(),
+				kParams, "TXT_KEY_COMBAT_PLOT_HILLS_MOD");
+	}
+	if (kPlot.getFeatureType() != NO_FEATURE)
+	{
+		appendCombatModifier(szBuffer,
+				kAttacker.featureAttackModifier(kPlot.getFeatureType()),
+				kParams, "TXT_KEY_COMBAT_PLOT_UNIT_MOD",
+				GC.getInfo(kPlot.getFeatureType()).getTextKeyWide());
+	}
+	else
+	{
+		appendCombatModifier(szBuffer,
+				kAttacker.terrainAttackModifier(kPlot.getTerrainType()),
+				kParams, "TXT_KEY_COMBAT_PLOT_UNIT_MOD",
+				GC.getInfo(kPlot.getTerrainType()).getTextKeyWide());
+	}
+	appendCombatModifier(szBuffer,
+			kAttacker.getKamikazePercent(),
+			kParams, "TXT_KEY_COMBAT_KAMIKAZE_MOD");
+	// Afforess (12/7/09): START
+	if (GC.getGameINLINE().isOption(GAMEOPTION_SAD))
+	{
+		appendCombatModifier(szBuffer,
+				kAttacker.surroundedDefenseModifier(&kPlot, &kDefender),
+				kParams, "TXT_KEY_COMBAT_SURROUNDED_DEFENSE_MOD");
+	} // Afforess: END
+	if (kDefender.isAnimal())
+	{
+		int iModifier = kAttacker.getUnitInfo().getAnimalCombatModifier();
+		// Moved into the isBarbarian block below
+		//iModifier -= GC.getInfo(GC.getGame().getHandicapType()).getAnimalCombatModifier();
+		appendCombatModifier(szBuffer, iModifier,
+				kParams, "TXT_KEY_UNIT_ANIMAL_COMBAT_MOD");
+	}
+	if (kDefender.isBarbarian())
+	{
+		// Show modifier from difficulty separately from unit abilities
+		int iModifier = -GC.getInfo(
+				GET_PLAYER(kAttacker.getOwner()). // K-Mod
+				getHandicapType()).getBarbarianCombatModifier();
+		// Moved from the isAnimal block above
+		if (kDefender.isAnimal())
+		{
+			iModifier -= GC.getInfo(
+					GET_PLAYER(kAttacker.getOwner()). // K-Mod
+					getHandicapType()).getAnimalCombatModifier();
+		}
+		appendCombatModifier(szBuffer, iModifier,
+				kParams, "TXT_KEY_MISC_FROM_HANDICAP");
+	}
+	// As in BtS - display modifiers that are typically negative last (river, amphib)
+	if (!kAttacker.isRiver() &&
+		// Don't check isRiverCrossing for non-adjacent tiles
+		stepDistance(kAttacker.plot(), &kPlot) == 1 &&
+		kAttacker.plot()->isRiverCrossing(directionXY(kAttacker.plot(), &kPlot)))
+	{
+		appendCombatModifier(szBuffer,
+				GC.getDefineINT("RIVER_ATTACK_MODIFIER"),
+				kParams, "TXT_KEY_COMBAT_PLOT_RIVER_MOD",
+				GC.getInfo(kPlot.getTerrainType()).getTextKeyWide());
+	}
+	if (!kAttacker.isAmphib() && !kPlot.isWater() && kAttacker.plot()->isWater())
+	{
+		appendCombatModifier(szBuffer,
+				GC.getDefineINT("AMPHIB_ATTACK_MODIFIER"),
+				kParams, "TXT_KEY_COMBAT_PLOT_AMPHIB_MOD",
+				GC.getInfo(kPlot.getTerrainType()).getTextKeyWide());
+	}
+	return;
+}
+
+void CvGameTextMgr::appendDefenderModifiers(CvWStringBuffer& szBuffer,
+	CvPlot const& kPlot, CvUnit const& kAttacker, CvUnit const& kDefender,
+	CombatModifierOutputParams const& kParams)
+{
 	appendCombatModifier(szBuffer,
 			kDefender.unitClassDefenseModifier(kAttacker.getUnitClassType()),
-			params, "TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
+			kParams, "TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
 			GC.getInfo(kAttacker.getUnitClassType()).getTextKeyWide());
 	if (kAttacker.getUnitCombatType() != NO_UNITCOMBAT)
 	{
 		appendCombatModifier(szBuffer,
 				kDefender.unitCombatModifier(kAttacker.getUnitCombatType()),
-				params, "TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
+				kParams, "TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
 				GC.getInfo(kAttacker.getUnitCombatType()).getTextKeyWide());
 	}
 	appendCombatModifier(szBuffer,
 			kDefender.domainModifier(kAttacker.getDomainType()),
-			params, "TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
+			kParams, "TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
 			GC.getInfo(kAttacker.getDomainType()).getTextKeyWide());
 	if (!kDefender.noDefensiveBonus())
 	{
 		appendCombatModifier(szBuffer,
 				kPlot.defenseModifier(kDefender.getTeam(),
 				kAttacker.ignoreBuildingDefense(), kAttacker.getTeam()),
-				params, "TXT_KEY_COMBAT_PLOT_TILE_MOD");
+				kParams, "TXT_KEY_COMBAT_PLOT_TILE_MOD");
 	}
 	appendCombatModifier(szBuffer,
 			kDefender.fortifyModifier(),
-			params, "TXT_KEY_COMBAT_PLOT_FORTIFY_MOD");
+			kParams, "TXT_KEY_COMBAT_PLOT_FORTIFY_MOD");
 	if (kPlot.isCity(true, kDefender.getTeam()))
 	{
 		appendCombatModifier(szBuffer,
 				kDefender.cityDefenseModifier(),
-				params, "TXT_KEY_COMBAT_PLOT_CITY_MOD");
+				kParams, "TXT_KEY_COMBAT_PLOT_CITY_MOD");
 	}
 	if (kPlot.isHills())
 	{
 		appendCombatModifier(szBuffer,
 				kDefender.hillsDefenseModifier(),
-				params, "TXT_KEY_COMBAT_PLOT_HILLS_MOD");
+				kParams, "TXT_KEY_COMBAT_PLOT_HILLS_MOD");
 	}
 	if (kPlot.getFeatureType() != NO_FEATURE)
 	{
 		appendCombatModifier(szBuffer,
 				kDefender.featureDefenseModifier(kPlot.getFeatureType()),
-				params, "TXT_KEY_COMBAT_PLOT_UNIT_MOD",
+				kParams, "TXT_KEY_COMBAT_PLOT_UNIT_MOD",
 				GC.getInfo(kPlot.getFeatureType()).getTextKeyWide());
 	}
 	//else (not mutually exclusive in AND)
 	appendCombatModifier(szBuffer,
 			kDefender.terrainDefenseModifier(kPlot.getTerrainType()),
-			params, "TXT_KEY_COMBAT_PLOT_UNIT_MOD",
+			kParams, "TXT_KEY_COMBAT_PLOT_UNIT_MOD",
 			GC.getInfo(kPlot.getTerrainType()).getTextKeyWide());
 }
 
@@ -3920,7 +3946,11 @@ void CvGameTextMgr::appendCombatModifier(CvWStringBuffer& szBuffer,
 		modifiers that favor the defender. */
 	if (iModifier < 0)
 		bNegativeColor = !bNegativeColor;
-	if (kParams.m_bACOEnabled &&
+	if ((kParams.m_bOnlyPositive && bNegativeColor) ||
+		(kParams.m_bOnlyNegative && !bNegativeColor))
+	{
+		return;
+	}	if (kParams.m_bACOEnabled &&
 		kParams.m_bAttackModifier && !kParams.m_bGenericModifier)
 	{
 		/*	Non-generic modifiers of the attacker apply -with inverted sign-

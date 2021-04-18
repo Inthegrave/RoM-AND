@@ -349,10 +349,23 @@ private:
 			bool bOnlyGeneric = false, bool bOnlyNonGeneric = false);
 	struct CombatModifierOutputParams
 	{
+		CombatModifierOutputParams()
+		{
+			m_bAttackModifier = m_bGenericModifier = m_bACOEnabled
+					= m_bOnlyPositive = m_bOnlyNegative = false;
+		}
 		bool m_bAttackModifier;
 		bool m_bGenericModifier;
 		bool m_bACOEnabled;
+		bool m_bOnlyPositive;
+		bool m_bOnlyNegative;
 	};
+	void appendAttackerModifiers(CvWStringBuffer& szBuffer, CvPlot const& kPlot,
+			CvUnit const& kAttacker, CvUnit const& kDefender,
+			CombatModifierOutputParams const& kParams);
+	void appendDefenderModifiers(CvWStringBuffer& szBuffer, CvPlot const& kPlot,
+			CvUnit const& kAttacker, CvUnit const& kDefender,
+			CombatModifierOutputParams const& kParams);
 	void appendCombatModifier(CvWStringBuffer& szBuffer, int iModifier,
 			CombatModifierOutputParams const& kParams, char const* szTextKey,
 			wchar const* szTextArg = NULL);
