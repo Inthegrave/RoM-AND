@@ -3891,10 +3891,10 @@ void CvGameTextMgr::appendAttackerModifiers(CvWStringBuffer& szBuffer,
 				kParams, "TXT_KEY_MISC_FROM_HANDICAP");
 	}
 	// As in BtS - display modifiers that are typically negative last (river, amphib)
-	if (!kAttacker.isRiver() &&
+	if (!kAttacker.isRiver()
 		// Don't check isRiverCrossing for non-adjacent tiles
-		stepDistance(kAttacker.plot(), &kPlot) == 1 &&
-		kAttacker.plot()->isRiverCrossing(directionXY(kAttacker.plot(), &kPlot)))
+		&& stepDistance(kAttacker.plot(), &kPlot) == 1
+		&& kAttacker.plot()->isRiverCrossing(directionXY(kAttacker.plot(), &kPlot)))
 	{
 		appendCombatModifier(szBuffer,
 				GC.getDefineINT("RIVER_ATTACK_MODIFIER"),
