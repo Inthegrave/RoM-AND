@@ -60,6 +60,15 @@
 		<Tag>TXT_KEY_GAMEOPTION_NO_CLASSICAL_ERA_HELP</Tag>
 		<English>Disables the Classical era and all subsequent eras; Future Tech becomes available at the end of the Ancient era.</English>
 	</TEXT>
+	<!-- Based on TXT_KEY_MISC_HEALTH_FROM_HANDICAP in Civ4GameTextInfos.xml -->
+	<TEXT>
+		<Tag>TXT_KEY_MISC_FROM_HANDICAP</Tag>
+		<English>[ICON_BULLET]%D1_Change%% from Difficulty Level</English>
+		<French>[ICON_BULLET]%D1_Change%% (niveau de difficulté)</French>
+		<German>[ICON_BULLET]%D1_Change%% durch Schwierigkeitsgrad</German>
+		<Italian>[ICON_BULLET]%D1_Change%% per il livello di difficolt&#224;</Italian>
+		<Spanish>[ICON_BULLET]%D1_Change%% por nivel de dificultad</Spanish>
+	</TEXT>
 	<!-- f1rpo: end -->
 	<!-- Toffer -->
     <TEXT>
