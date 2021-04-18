@@ -3676,36 +3676,11 @@ It is fine for a human player mouse-over (which is what it is used for).
                     szString.append(NEWLINE);
                     setUnitHelp(szString, pAttacker, true, true);
                 }
+				// f1rpo: Moved into new function (shared with non-ACO code)
+				appendFirstStrikes(szString, *pAttacker, *pDefender, false);
 
-
-
-                szString.append(gDLL->getText("TXT_KEY_COLOR_POSITIVE"));
+				szString.append(gDLL->getText("TXT_KEY_COLOR_POSITIVE"));
                 szString.append(L' ');//XXX
-
-                if (!(pDefender->immuneToFirstStrikes()))
-                {
-                    if (pAttacker->maxFirstStrikes() > 0)
-                    {
-                        if (pAttacker->firstStrikes() == pAttacker->maxFirstStrikes())
-                        {
-                            if (pAttacker->firstStrikes() == 1)
-                            {
-                                szString.append(NEWLINE);
-                                szString.append(gDLL->getText("TXT_KEY_UNIT_ONE_FIRST_STRIKE"));
-                            }
-                            else
-                            {
-                                szString.append(NEWLINE);
-                                szString.append(gDLL->getText("TXT_KEY_UNIT_NUM_FIRST_STRIKES", pAttacker->firstStrikes()));
-                            }
-                        }
-                        else
-                        {
-                            szString.append(NEWLINE);
-                            szString.append(gDLL->getText("TXT_KEY_UNIT_FIRST_STRIKE_CHANCES", pAttacker->firstStrikes(), pAttacker->maxFirstStrikes()));
-                        }
-                    }
-                }
 
                 iModifier = pAttacker->getExtraCombatPercent();
 
@@ -3731,38 +3706,14 @@ It is fine for a human player mouse-over (which is what it is used for).
                     szString.append(NEWLINE);
                     setUnitHelp(szString, pDefender, true, true);
                 }
-
+				//if defense modifiers are enabled - recommend leaving this on unless Total defense Modifier is enabled
                 if (iView & getBugOptionINT("ACO__ShowDefenseModifiers", 3, "ACO_SHOW_DEFENSE_MODIFIERS"))
                 {
-                    //if defense modifiers are enabled - recommend leaving this on unless Total defense Modifier is enabled
-                    szString.append(gDLL->getText("TXT_KEY_COLOR_NEGATIVE"));
+					// f1rpo: Moved into new function (shared with non-ACO code)
+                    appendFirstStrikes(szString, *pDefender, *pAttacker, true);
 
+					szString.append(gDLL->getText("TXT_KEY_COLOR_NEGATIVE"));
                     szString.append(L' ');//XXX
-
-                    if (!(pAttacker->immuneToFirstStrikes()))
-                    {
-                        if (pDefender->maxFirstStrikes() > 0)
-                        {
-                            if (pDefender->firstStrikes() == pDefender->maxFirstStrikes())
-                            {
-                                if (pDefender->firstStrikes() == 1)
-                                {
-                                    szString.append(NEWLINE);
-                                    szString.append(gDLL->getText("TXT_KEY_UNIT_ONE_FIRST_STRIKE"));
-                                }
-                                else
-                                {
-                                    szString.append(NEWLINE);
-                                    szString.append(gDLL->getText("TXT_KEY_UNIT_NUM_FIRST_STRIKES", pDefender->firstStrikes()));
-                                }
-                            }
-                            else
-                            {
-                                szString.append(NEWLINE);
-                                szString.append(gDLL->getText("TXT_KEY_UNIT_FIRST_STRIKE_CHANCES", pDefender->firstStrikes(), pDefender->maxFirstStrikes()));
-                            }
-                        }
-                    }
 
                     if (!(pAttacker->isRiver()))
                     {
@@ -4181,40 +4132,17 @@ It is fine for a human player mouse-over (which is what it is used for).
 					szString.append(gDLL->getText("TXT_KEY_UNIT_BARBARIAN_COMBAT_MOD", iModifier));
 				}
 			}
+			szString.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));
+			// f1rpo: BtS code replaced with function shared with ACO
+			appendFirstStrikes(szString, *pAttacker, *pDefender, false);
 
-			if (!(pDefender->immuneToFirstStrikes()))
-			{
-				if (pAttacker->maxFirstStrikes() > 0)
-				{
-					if (pAttacker->firstStrikes() == pAttacker->maxFirstStrikes())
-					{
-						if (pAttacker->firstStrikes() == 1)
-						{
-							szString.append(NEWLINE);
-							szString.append(gDLL->getText("TXT_KEY_UNIT_ONE_FIRST_STRIKE"));
-						}
-						else
-						{
-							szString.append(NEWLINE);
-							szString.append(gDLL->getText("TXT_KEY_UNIT_NUM_FIRST_STRIKES", pAttacker->firstStrikes()));
-						}
-					}
-					else
-					{
-						szString.append(NEWLINE);
-						szString.append(gDLL->getText("TXT_KEY_UNIT_FIRST_STRIKE_CHANCES", pAttacker->firstStrikes(), pAttacker->maxFirstStrikes()));
-					}
-				}
-			}
-
+			szString.append(gDLL->getText("TXT_KEY_COLOR_POSITIVE"));
 			if (pAttacker->isHurt())
 			{
 				szString.append(NEWLINE);
 				szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_HP", pAttacker->currHitPoints(), pAttacker->maxHitPoints()));
 			}
-
 			szString.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));
-
 			szString.append(L' ');//XXX
 
 			szString.append(gDLL->getText("TXT_KEY_COLOR_NEGATIVE"));
@@ -4345,31 +4273,10 @@ It is fine for a human player mouse-over (which is what it is used for).
 					szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_UNIT_MOD", iModifier, GC.getTerrainInfo(pPlot->getTerrainType()).getTextKeyWide()));
 				}
 			}
-
-			if (!(pAttacker->immuneToFirstStrikes()))
-			{
-				if (pDefender->maxFirstStrikes() > 0)
-				{
-					if (pDefender->firstStrikes() == pDefender->maxFirstStrikes())
-					{
-						if (pDefender->firstStrikes() == 1)
-						{
-							szString.append(NEWLINE);
-							szString.append(gDLL->getText("TXT_KEY_UNIT_ONE_FIRST_STRIKE"));
-						}
-						else
-						{
-							szString.append(NEWLINE);
-							szString.append(gDLL->getText("TXT_KEY_UNIT_NUM_FIRST_STRIKES", pDefender->firstStrikes()));
-						}
-					}
-					else
-					{
-						szString.append(NEWLINE);
-						szString.append(gDLL->getText("TXT_KEY_UNIT_FIRST_STRIKE_CHANCES", pDefender->firstStrikes(), pDefender->maxFirstStrikes()));
-					}
-				}
-			}
+			szString.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));
+			// f1rpo: BtS code replaced with function shared with ACO
+			appendFirstStrikes(szString, *pDefender, *pAttacker, true);
+			szString.append(gDLL->getText("TXT_KEY_COLOR_NEGATIVE"));
 
 			if (pDefender->isHurt())
 			{
@@ -4433,6 +4340,235 @@ It is fine for a human player mouse-over (which is what it is used for).
 
 	return false;
 }
+
+// <f1rpo> (From AdvCiv, based on BtS and ACO code originally in setCombatPlotHelp.)
+void CvGameTextMgr::appendCombatModifiers(CvWStringBuffer& szBuffer,
+	CvPlot const& kPlot, CvUnit const& kAttacker, CvUnit const& kDefender,
+	bool bAttackModifiers, bool bACOEnabled,
+	bool bOnlyGeneric, bool bOnlyNonGeneric)
+{
+	CombatModifierOutputParams params;
+	params.m_bACOEnabled = bACOEnabled;
+	params.m_bAttackModifier = bAttackModifiers;
+	params.m_bGenericModifier = true;
+	if (bAttackModifiers)
+	{
+		if (!bOnlyNonGeneric)
+		{
+			appendCombatModifier(szBuffer,
+					kAttacker.getExtraCombatPercent(),
+					params, "TXT_KEY_COMBAT_PLOT_EXTRA_STRENGTH");
+		}
+		if (bOnlyGeneric)
+			return;
+		params.m_bGenericModifier = false;
+		appendCombatModifier(szBuffer,
+				kAttacker.unitClassAttackModifier(kDefender.getUnitClassType()),
+				params, "TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
+				GC.getInfo(kDefender.getUnitClassType()).getTextKeyWide());
+		if (kDefender.getUnitCombatType() != NO_UNITCOMBAT)
+		{
+			appendCombatModifier(szBuffer,
+					kAttacker.unitCombatModifier(kDefender.getUnitCombatType()),
+					params, "TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
+					GC.getInfo(kDefender.getUnitCombatType()).getTextKeyWide());
+		}
+		appendCombatModifier(szBuffer, kAttacker.domainModifier(
+				kDefender.getDomainType()),
+				params, "TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
+				GC.getInfo(kDefender.getDomainType()).getTextKeyWide());
+		if (kPlot.isCity(true, kDefender.getTeam()))
+		{
+			appendCombatModifier(szBuffer,
+					kAttacker.cityAttackModifier(),
+					params, "TXT_KEY_COMBAT_PLOT_CITY_MOD");
+		}
+		if (kPlot.isHills())
+		{
+			appendCombatModifier(szBuffer,
+					kAttacker.hillsAttackModifier(),
+					params, "TXT_KEY_COMBAT_PLOT_HILLS_MOD");
+		}
+		if (kPlot.getFeatureType() != NO_FEATURE)
+		{
+			appendCombatModifier(szBuffer,
+					kAttacker.featureAttackModifier(kPlot.getFeatureType()),
+					params, "TXT_KEY_COMBAT_PLOT_UNIT_MOD",
+					GC.getInfo(kPlot.getFeatureType()).getTextKeyWide());
+		}
+		else
+		{
+			appendCombatModifier(szBuffer,
+					kAttacker.terrainAttackModifier(kPlot.getTerrainType()),
+					params, "TXT_KEY_COMBAT_PLOT_UNIT_MOD",
+					GC.getInfo(kPlot.getTerrainType()).getTextKeyWide());
+		}
+		appendCombatModifier(szBuffer,
+				kAttacker.getKamikazePercent(),
+				params, "TXT_KEY_COMBAT_KAMIKAZE_MOD");
+		if (kDefender.isAnimal())
+		{
+			int iModifier = kAttacker.getUnitInfo().getAnimalCombatModifier();
+			// Moved into the isBarbarian block below
+			//iModifier -= GC.getInfo(GC.getGame().getHandicapType()).getAnimalCombatModifier();
+			appendCombatModifier(szBuffer, iModifier,
+					params, "TXT_KEY_UNIT_ANIMAL_COMBAT_MOD");
+		}
+		if (kDefender.isBarbarian())
+		{
+			// Show modifier from difficulty separately from unit abilities
+			int iModifier = -GC.getInfo(
+					GET_PLAYER(kAttacker.getOwner()). // K-Mod
+					getHandicapType()).getBarbarianCombatModifier();
+			// Moved from the isAnimal block above
+			if (kDefender.isAnimal())
+			{
+				iModifier -= GC.getInfo(
+						GET_PLAYER(kAttacker.getOwner()). // K-Mod
+						getHandicapType()).getAnimalCombatModifier();
+			}
+			appendCombatModifier(szBuffer, iModifier,
+					params, "TXT_KEY_MISC_FROM_HANDICAP");
+		}
+		// As in BtS - display modifiers that are typically negative last (river, amphib)
+		if (!kAttacker.isRiver() &&
+			// Don't check isRiverCrossing for non-adjacent tiles
+			stepDistance(kAttacker.plot(), &kPlot) == 1 &&
+			kAttacker.plot()->isRiverCrossing(directionXY(kAttacker.plot(), &kPlot)))
+		{
+			appendCombatModifier(szBuffer,
+					GC.getDefineINT("RIVER_ATTACK_MODIFIER"),
+					params, "TXT_KEY_COMBAT_PLOT_RIVER_MOD",
+					GC.getInfo(kPlot.getTerrainType()).getTextKeyWide());
+		}
+		if (!kAttacker.isAmphib() && !kPlot.isWater() && kAttacker.plot()->isWater())
+		{
+			appendCombatModifier(szBuffer,
+					GC.getDefineINT("AMPHIB_ATTACK_MODIFIER"),
+					params, "TXT_KEY_COMBAT_PLOT_AMPHIB_MOD",
+					GC.getInfo(kPlot.getTerrainType()).getTextKeyWide());
+		}
+		return;
+	}
+	if (!bOnlyNonGeneric)
+	{
+		appendCombatModifier(szBuffer,
+				kDefender.getExtraCombatPercent(),
+				params, "TXT_KEY_COMBAT_PLOT_EXTRA_STRENGTH");
+	}
+	if (bOnlyGeneric)
+		return;
+	params.m_bGenericModifier = false;
+	appendCombatModifier(szBuffer,
+			kDefender.unitClassDefenseModifier(kAttacker.getUnitClassType()),
+			params, "TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
+			GC.getInfo(kAttacker.getUnitClassType()).getTextKeyWide());
+	if (kAttacker.getUnitCombatType() != NO_UNITCOMBAT)
+	{
+		appendCombatModifier(szBuffer,
+				kDefender.unitCombatModifier(kAttacker.getUnitCombatType()),
+				params, "TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
+				GC.getInfo(kAttacker.getUnitCombatType()).getTextKeyWide());
+	}
+	appendCombatModifier(szBuffer,
+			kDefender.domainModifier(kAttacker.getDomainType()),
+			params, "TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE",
+			GC.getInfo(kAttacker.getDomainType()).getTextKeyWide());
+	if (!kDefender.noDefensiveBonus())
+	{
+		appendCombatModifier(szBuffer,
+				kPlot.defenseModifier(kDefender.getTeam(),
+				kAttacker.ignoreBuildingDefense(), kAttacker.getTeam()),
+				params, "TXT_KEY_COMBAT_PLOT_TILE_MOD");
+	}
+	appendCombatModifier(szBuffer,
+			kDefender.fortifyModifier(),
+			params, "TXT_KEY_COMBAT_PLOT_FORTIFY_MOD");
+	if (kPlot.isCity(true, kDefender.getTeam()))
+	{
+		appendCombatModifier(szBuffer,
+				kDefender.cityDefenseModifier(),
+				params, "TXT_KEY_COMBAT_PLOT_CITY_MOD");
+	}
+	if (kPlot.isHills())
+	{
+		appendCombatModifier(szBuffer,
+				kDefender.hillsDefenseModifier(),
+				params, "TXT_KEY_COMBAT_PLOT_HILLS_MOD");
+	}
+	if (kPlot.getFeatureType() != NO_FEATURE)
+	{
+		appendCombatModifier(szBuffer,
+				kDefender.featureDefenseModifier(kPlot.getFeatureType()),
+				params, "TXT_KEY_COMBAT_PLOT_UNIT_MOD",
+				GC.getInfo(kPlot.getFeatureType()).getTextKeyWide());
+	}
+	else
+	{
+		appendCombatModifier(szBuffer,
+				kDefender.terrainDefenseModifier(kPlot.getTerrainType()),
+				params, "TXT_KEY_COMBAT_PLOT_UNIT_MOD",
+				GC.getInfo(kPlot.getTerrainType()).getTextKeyWide());
+	}
+}
+
+
+void CvGameTextMgr::appendCombatModifier(CvWStringBuffer& szBuffer,
+	int iModifier, CombatModifierOutputParams const& kParams,
+	char const* szTextKey, wchar const* szTextArg)
+{
+	if (iModifier == 0)
+		return;
+	bool bNegativeColor = !kParams.m_bAttackModifier;
+	/*	Use green for modifiers that _favor_ the attacker, red for
+		modifiers that favor the defender. */
+	if (iModifier < 0)
+		bNegativeColor = !bNegativeColor;
+	if (kParams.m_bACOEnabled &&
+		kParams.m_bAttackModifier && !kParams.m_bGenericModifier)
+	{
+		/*	Non-generic modifiers of the attacker apply -with inverted sign-
+			to the defender, and ACO displays them that way too. */
+		iModifier *= -1;
+	}
+	szBuffer.append(NEWLINE);
+	szBuffer.append(gDLL->getText(bNegativeColor ? "TXT_KEY_COLOR_NEGATIVE" :
+			"TXT_KEY_COLOR_POSITIVE"));
+	szBuffer.append(szTextArg == NULL ? gDLL->getText(szTextKey, iModifier) :
+			gDLL->getText(szTextKey, iModifier, szTextArg));
+	szBuffer.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));
+}
+
+
+void CvGameTextMgr::appendFirstStrikes(CvWStringBuffer& szBuffer,
+	CvUnit const& kFirstStriker, CvUnit const& kOther, bool bNegativeColor)
+{
+	if (kOther.immuneToFirstStrikes() || kFirstStriker.maxFirstStrikes() <= 0)
+		return;
+	szBuffer.append(gDLL->getText(bNegativeColor ? "TXT_KEY_COLOR_NEGATIVE" :
+			"TXT_KEY_COLOR_POSITIVE"));
+	if (kFirstStriker.firstStrikes() == kFirstStriker.maxFirstStrikes())
+	{
+		if (kFirstStriker.firstStrikes() == 1)
+		{
+			szBuffer.append(NEWLINE);
+			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_ONE_FIRST_STRIKE"));
+		}
+		else
+		{
+			szBuffer.append(NEWLINE);
+			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_NUM_FIRST_STRIKES",
+					kFirstStriker.firstStrikes()));
+		}
+	}
+	else
+	{
+		szBuffer.append(NEWLINE);
+		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_FIRST_STRIKE_CHANCES",
+				kFirstStriker.firstStrikes(), kFirstStriker.maxFirstStrikes()));
+	}
+	szBuffer.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));
+} // </f1rpo>
 
 // DO NOT REMOVE - needed for font testing - Moose
 void createTestFontString(CvWStringBuffer& szString)

@@ -335,13 +335,30 @@ public:
 	void buildGameObjectRelationString(CvWStringBuffer& szBuffer, GameObjectTypes eObject, RelationTypes eRelation, int iData);
 
 private:
+	std::vector<int*> m_apbPromotion;
+
 	void eventTechHelp(CvWStringBuffer& szBuffer, EventTypes eEvent, TechTypes eTech, PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 	void eventGoldHelp(CvWStringBuffer& szBuffer, EventTypes eEvent, PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 
-	std::vector<int*> m_apbPromotion;
-
 	void setCityPlotYieldValueString(CvWStringBuffer &szString, CvCity* pCity, int iIndex, bool bAvoidGrowth, bool bIgnoreGrowth, bool bIgnoreFood = false);
 	void setYieldValueString(CvWStringBuffer &szString, int iValue, bool bActive = false, bool bMakeWhitespace = false);
+	// <f1rpo>
+	void appendCombatModifiers(CvWStringBuffer& szBuffer, CvPlot const& kPlot,
+			CvUnit const& kAttacker, CvUnit const& kDefender,
+			bool bAttackModifier, bool bACOEnabled,
+			bool bOnlyGeneric = false, bool bOnlyNonGeneric = false);
+	struct CombatModifierOutputParams
+	{
+		bool m_bAttackModifier;
+		bool m_bGenericModifier;
+		bool m_bACOEnabled;
+	};
+	void appendCombatModifier(CvWStringBuffer& szBuffer, int iModifier,
+			CombatModifierOutputParams const& kParams, char const* szTextKey,
+			wchar const* szTextArg = NULL);
+	void appendFirstStrikes(CvWStringBuffer& szBuffer,
+			CvUnit const& kFirstStriker, CvUnit const& kOther, bool bNegativeColor);
+	// </f1rpo>
 };
 
 // Singleton Accessor
