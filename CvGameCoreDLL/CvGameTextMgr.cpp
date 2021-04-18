@@ -2319,29 +2319,17 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
 {
 	PROFILE_FUNC();
 
-/************************************************************************************************/
-/* BETTER_BTS_AI_MOD                         05/22/08                             jdog5000      */
-/*                                                                                              */
-/* DEBUG                                                                                        */
-/************************************************************************************************/
+	// BETTER_BTS_AI_MOD, 05/22/08, jdog5000 (DEBUG):
 	if (gDLL->altKey() && (gDLL->getChtLvl() > 0))
 	{
 		setPlotHelp( szString, pPlot );
 		return true;
-	}
-/************************************************************************************************/
-/* BETTER_BTS_AI_MOD                          END                                               */
-/************************************************************************************************/
+	} // BETTER_BTS_AI_MOD: END
 
-/*************************************************************************************************/
-/** ADVANCED COMBAT ODDS                      3/11/09                           PieceOfMind      */
-/** BEGIN                                                                       v2.0             */
-/*************************************************************************************************/
-/*
-Note that due to the large amount of extra content added to this function (setCombatPlotHelp), this should never be used in any function that needs to be called repeatedly (e.g. hundreds of times) quickly.
-It is fine for a human player mouse-over (which is what it is used for).
-*/
-/* New Code */
+	// ADVANCED COMBAT ODDS v2.0, 3/11/09, PieceOfMind: START
+	/* Note that due to the large amount of extra content added to this function (setCombatPlotHelp), this should never be used in any function that needs to be called repeatedly (e.g. hundreds of times) quickly.
+	It is fine for a human player mouse-over (which is what it is used for). */
+	/* New Code */
     bool ACO_enabled = getBugOptionBOOL("ACO__Enabled", true, "ACO_ENABLED");
     bool bShift = gDLL->shiftKey();
 	int iView = bShift ? 2 : 1;
@@ -2350,13 +2338,8 @@ It is fine for a human player mouse-over (which is what it is used for).
         iView = 3 - iView; //swaps 1 and 2.
     }
 	CvWString szTempBuffer2;
-/*************************************************************************************************/
-/** ADVANCED COMBAT ODDS                      3/11/09                           PieceOfMind      */
-/** END                                                                         v2.0             */
-/*************************************************************************************************/
+	// ADVANCED COMBAT ODDS: END
 
-	CvUnit* pAttacker;
-	CvUnit* pDefender;
 	CvWString szTempBuffer;
 	CvWString szOffenseOdds;
 	CvWString szDefenseOdds;
@@ -2396,7 +2379,7 @@ It is fine for a human player mouse-over (which is what it is used for).
 	}
 
 	int iOdds;
-	pAttacker = gDLL->getInterfaceIFace()->getSelectionList()->AI_getBestGroupAttacker(pPlot, false, iOdds);
+	CvUnit* pAttacker = gDLL->getInterfaceIFace()->getSelectionList()->AI_getBestGroupAttacker(pPlot, false, iOdds);
 
 	if (pAttacker == NULL)
 	{
@@ -2405,9 +2388,8 @@ It is fine for a human player mouse-over (which is what it is used for).
 
 	if (pAttacker != NULL)
 	{
-// BUG - Combat Odds for Friendlies - start
-		pDefender = pPlot->getBestDefender(NO_PLAYER, pAttacker->getOwnerINLINE(), pAttacker, !gDLL->altKey(), NO_TEAM == pAttacker->getDeclareWarMove(pPlot));
-// BUG - Combat Odds for Friendlies - end
+		// BUG - Combat Odds for Friendlies:
+		CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER, pAttacker->getOwnerINLINE(), pAttacker, !gDLL->altKey(), NO_TEAM == pAttacker->getDeclareWarMove(pPlot));
 
 		if (pDefender != NULL && pDefender != pAttacker && pDefender->canDefend(pPlot) && pAttacker->canAttack(*pDefender))
 		{
@@ -2429,23 +2411,13 @@ It is fine for a human player mouse-over (which is what it is used for).
 					{
 						szTempBuffer.Format(L"%.1f", ((float)iCombatOdds) / 10.0f);
 					}
-/*************************************************************************************************/
-/** ADVANCED COMBAT ODDS                      3/11/09                           PieceOfMind      */
-/** BEGIN                                                                       v2.0             */
-/*************************************************************************************************/
-/* Old Code */
-/*
-					szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_ODDS", szTempBuffer.GetCString()));
-*/
-/* New Code */
+					// ADVANCED COMBAT ODDS v2.0, 3/11/09, PieceOfMind: START
+					/* Old Code */ //szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_ODDS", szTempBuffer.GetCString()));
+					/* New Code */
 					if ((!ACO_enabled) || (getBugOptionBOOL("ACO__ForceOriginalOdds", false, "ACO_FORCE_ORIGINAL_ODDS")))
 					{
 						szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_ODDS", szTempBuffer.GetCString()));
-					}
-/*************************************************************************************************/
-/** ADVANCED COMBAT ODDS                      3/11/09                           PieceOfMind      */
-/** END                                                                         v2.0             */
-/*************************************************************************************************/
+					} // ADVANCED COMBAT ODDS: END
 				}
 
 
@@ -2473,38 +2445,23 @@ It is fine for a human player mouse-over (which is what it is used for).
 						szTempBuffer.Format(L"%.1f", iWithdrawal / 1000.0f);
 					}
 
-/*************************************************************************************************/
-/** ADVANCED COMBAT ODDS                      3/11/09                           PieceOfMind      */
-/** BEGIN                                                                       v2.0             */
-/*************************************************************************************************/
-/* Old Code */
-/*
-					szString.append(NEWLINE);
-					szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_ODDS_RETREAT", szTempBuffer.GetCString()));
-*/
-/* New Code */
+					// ADVANCED COMBAT ODDS v2.0, 3/11/09, PieceOfMind: START
+					/* Old Code */
+					/*szString.append(NEWLINE);
+					szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_ODDS_RETREAT", szTempBuffer.GetCString()));*/
+					/* New Code */
 					if ((!ACO_enabled) || (getBugOptionBOOL("ACO__ForceOriginalOdds", false, "ACO_FORCE_ORIGINAL_ODDS")))
 					{
 						szString.append(NEWLINE);
 						szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_ODDS_RETREAT", szTempBuffer.GetCString()));
                         if (ACO_enabled)
                         {
-						szString.append(NEWLINE);
-					}
+							szString.append(NEWLINE);
+						}
                     }
-/*************************************************************************************************/
-/** ADVANCED COMBAT ODDS                      3/11/09                           PieceOfMind      */
-/** END                                                                         v2.0             */
-/*************************************************************************************************/
 				}
-
-				//szTempBuffer.Format(L"AI odds: %d%%", iOdds);
-				//szString += NEWLINE + szTempBuffer;
-/*************************************************************************************************/
-/** ADVANCED COMBAT ODDS                      3/11/09                           PieceOfMind      */
-/** BEGIN                                                                       v2.0             */
-/*************************************************************************************************/
-/* New Code */
+				/*szTempBuffer.Format(L"AI odds: %d%%", iOdds);
+				szString += NEWLINE + szTempBuffer;*/ // old code
 				if (ACO_enabled)
 				{
 
@@ -2540,8 +2497,6 @@ It is fine for a human player mouse-over (which is what it is used for).
 						}
 					}
                     /** phungus end **/ //thanks to phungus420
-
-
 
 					/** Many thanks to DanF5771 for some of these calculations! **/
 					int iAttackerStrength  = pAttacker->currCombatStr(NULL, NULL);
@@ -2596,7 +2551,6 @@ It is fine for a human player mouse-over (which is what it is used for).
                             }
 						}
 					}
-
 
                     //XP calculations
 
@@ -3615,20 +3569,7 @@ It is fine for a human player mouse-over (which is what it is used for).
                     }
 
                 }//if ACO_enabled
-/*************************************************************************************************/
-/** ADVANCED COMBAT ODDS                      3/11/09                           PieceOfMind      */
-/** END                                                                         v2.0             */
-/*************************************************************************************************/
 			}
-/*************************************************************************************************/
-/** ADVANCED COMBAT ODDS                      3/11/09                           PieceOfMind      */
-/** BEGIN                                                                       v2.0             */
-/*************************************************************************************************/
-/* Old Code */
-/*
-
-*/
-/* New Code */
             if (ACO_enabled)
             {
                 szString.append(NEWLINE);
@@ -3782,10 +3723,7 @@ It is fine for a human player mouse-over (which is what it is used for).
 				int iEnemyStrengthOffense = GET_PLAYER(GC.getGameINLINE().getActivePlayer()).AI_getEnemyPlotStrength(pPlot, 1, false, false);
 				szTempBuffer.Format(L"\nPlot Strength(Enemy)= d%d, o%d", iEnemyStrengthDefense, iEnemyStrengthOffense);
 				szString.append(szTempBuffer);
-			}
-/************************************************************************************************/
-/* BETTER_BTS_AI_MOD                       END                                                  */
-/************************************************************************************************/
+			} // BETTER_BTS_AI_MOD: END
 
 			return true;
 		}
