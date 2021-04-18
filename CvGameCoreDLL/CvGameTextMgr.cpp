@@ -3678,25 +3678,24 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
 				appendFirstStrikes(szString, *pAttacker, *pDefender, false);
 				// </f1rpo>
 				szString.append(gDLL->getText("TXT_KEY_COLOR_POSITIVE"));
-				if (pAttacker->isHurt())
+				// Commented out - no problem, I just find it superfluous.
+				/*if (pAttacker->isHurt())
 				{
 					szString.append(NEWLINE);
 					szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_HP", pAttacker->currHitPoints(), pAttacker->maxHitPoints()));
 				}
-				szString.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));
-				// <f1rpo>
+				szString.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));*/
 				appendCombatModifiers(szString, *pPlot, *pAttacker, *pDefender, false, false);
 				appendFirstStrikes(szString, *pDefender, *pAttacker, true);
-				// </f1rpo>
-				szString.append(gDLL->getText("TXT_KEY_COLOR_NEGATIVE"));
+				// See above
+				/*szString.append(gDLL->getText("TXT_KEY_COLOR_NEGATIVE"));
 				if (pDefender->isHurt())
 				{
 					szString.append(NEWLINE);
 					szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_HP", pDefender->currHitPoints(), pDefender->maxHitPoints()));
 				}
-				szString.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));
-			}
-			//if ((gDLL->getChtLvl() > 0)) // original code
+				szString.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));*/
+				// </f1rpo> ((gDLL->getChtLvl() > 0)) // original code
 			// BETTER_BTS_AI_MOD, 06/20/08, jdog5000 (DEBUG): START
 			// Only display this info in debug mode so game can be played with cheat code entered
 			if( GC.getGameINLINE().isDebugMode()
