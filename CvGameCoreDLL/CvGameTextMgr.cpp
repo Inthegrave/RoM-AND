@@ -553,7 +553,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit, 
 		if (bColorAllegiance)
 		{
 			szColTag = (pUnit->isEnemy(GC.getGameINLINE().getActiveTeam()) ?
-					"COLOR_WARNING_TEXT" : "COLOR_POSITIVE_TEXT");
+					"COLOR_NEGATIVE_TEXT" : "COLOR_POSITIVE_TEXT");
 		} // </f1rpo>
 		szTempBuffer.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR(szColTag), pUnit->getName().GetCString());
 		szString.append(szTempBuffer);
