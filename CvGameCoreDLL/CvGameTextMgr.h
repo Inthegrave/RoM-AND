@@ -55,12 +55,13 @@ public:
 	DllExport void setNetStats(CvWString& szString, PlayerTypes ePlayer);
 	DllExport void setMinimizePopupHelp(CvWString& szString, const CvPopupInfo & info);
 
-	DllExport void setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit, bool bOneLine = false, bool bShort = false);
-	DllExport void setPlotListHelp(CvWStringBuffer &szString, CvPlot* pPlot, bool bOneLine, bool bShort);
-	DllExport bool setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot);
-	DllExport void setPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot);
-	DllExport void setCityBarHelp(CvWStringBuffer &szString, CvCity* pCity);
-	DllExport void setScoreHelp(CvWStringBuffer &szString, PlayerTypes ePlayer);
+	void setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit, bool bOneLine = false, bool bShort = false,
+			bool bColorAllegiance = false); // f1rpo
+	void setPlotListHelp(CvWStringBuffer &szString, CvPlot* pPlot, bool bOneLine, bool bShort);
+	bool setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot);
+	void setPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot);
+	void setCityBarHelp(CvWStringBuffer &szString, CvCity* pCity);
+	void setScoreHelp(CvWStringBuffer &szString, PlayerTypes ePlayer);
 /************************************************************************************************/
 /* Afforess	                  Start		 08/26/10                                               */
 /*                                                                                              */

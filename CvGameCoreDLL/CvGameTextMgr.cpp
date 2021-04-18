@@ -536,7 +536,8 @@ void CvGameTextMgr::setEspionageMissionHelp(CvWStringBuffer &szBuffer, const CvU
 }
 
 
-void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit, bool bOneLine, bool bShort)
+void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit, bool bOneLine, bool bShort,
+	bool bColorAllegiance) // f1rpo (from AdvCiv)
 {
 	PROFILE_FUNC();
 
@@ -547,10 +548,16 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit, 
 	bool bFirst;
 	bool bShift = gDLL->shiftKey();
 	bool bAlt = gDLL->altKey();
-
-	szTempBuffer.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"), pUnit->getName().GetCString());
-	szString.append(szTempBuffer);
-
+	{	// <f1rpo>
+		char const* szColTag = "COLOR_UNIT_TEXT";
+		if (bColorAllegiance)
+		{
+			szColTag = (pUnit->isEnemy(GC.getGameINLINE().getActiveTeam()) ?
+					"COLOR_WARNING_TEXT" : "COLOR_POSITIVE_TEXT");
+		} // </f1rpo>
+		szTempBuffer.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR(szColTag), pUnit->getName().GetCString());
+		szString.append(szTempBuffer);
+	}
 	szString.append(L", ");
 
 	if (pUnit->getDomainType() == DOMAIN_AIR)
@@ -723,15 +730,20 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit, 
 			eUnitCombatType = ((UnitCombatTypes)iI);
 			if (bfirst)
 			{
-				szTempBuffer.Format(L"(%s", GC.getUnitCombatInfo(eUnitCombatType).getDescription());
-				szString.append(szTempBuffer);
+				// f1rpo: Space added
+				szTempBuffer.Format(L" (%s", GC.getUnitCombatInfo(eUnitCombatType).getDescription());
 				bfirst = false;
 			}
 			else
 			{
 				szTempBuffer.Format(L", %s", GC.getUnitCombatInfo(eUnitCombatType).getDescription());
-				szString.append(szTempBuffer);
 			}
+			/*	<f1rpo> Hack, will only affect English. Chop off the " Units",
+				it's too long and not informative. */
+			size_t uiPos = szTempBuffer.find(L" Units");
+			if (uiPos != std::string::npos)
+				szTempBuffer = szTempBuffer.substr(0, uiPos); // </f1rpo>
+			szString.append(szTempBuffer);
 		}
 	}
 	if (bwrapup)
@@ -3601,7 +3613,12 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
                 }
 
                 szString.append(gDLL->getText("TXT_ACO_VS", szTempBuffer.GetCString(), szTempBuffer2.GetCString()));
-
+				// f1rpo: Move attacker info above the modifier label
+				if ((iView & getBugOptionINT("ACO__ShowAttackerInfo", 0, "ACO_SHOW_ATTACKER_INFO")))
+                {
+                    szString.append(NEWLINE);
+                    setUnitHelp(szString, pAttacker, true, true, /* f1rpo: */ true);
+                }
                 if (((!(pDefender->immuneToFirstStrikes())) && (pAttacker->maxFirstStrikes() > 0)) || (pAttacker->maxCombatStr(NULL,NULL)!=pAttacker->baseCombatStr()*100))
                 {
                     //if attacker uninjured strength is not the same as base strength (i.e. modifiers are in effect) or first strikes exist, then
@@ -3609,18 +3626,22 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
                     {
                         szString.append(gDLL->getText("TXT_ACO_AttackModifiers"));
                     }
-                }//if
-                if ((iView & getBugOptionINT("ACO__ShowAttackerInfo", 0, "ACO_SHOW_ATTACKER_INFO")))
-                {
-                    szString.append(NEWLINE);
-                    setUnitHelp(szString, pAttacker, true, true);
                 }
 				// <f1rpo> Moved into new functions (shared with non-ACO code)
 				appendFirstStrikes(szString, *pAttacker, *pDefender, false);
 				/*	(Generic modifiers of the attacker are the only ones that
 					affect the attacker's combat strength) */
 				appendCombatModifiers(szString, *pPlot, *pAttacker, *pDefender,
-						true, true, true); // </f1rpo>
+						true, true, true);
+				// Move defender info above the modifier label </f1rpo>
+				if (iView & getBugOptionINT("ACO__ShowDefenderInfo", 3, "ACO_SHOW_DEFENDER_INFO"))
+                {
+                    szString.append(NEWLINE);
+					// <f1rpo>
+					szString.append(gDLL->getText("TXT_KEY_MISC_VS"));
+					szString.append(L" "); // </f1rpo>
+                    setUnitHelp(szString, pDefender, true, true, /* f1rpo: */ true);
+                }
                 if (((!(pAttacker->immuneToFirstStrikes())) && (pDefender->maxFirstStrikes() > 0)) || (pDefender->maxCombatStr(pPlot,pAttacker)!=pDefender->baseCombatStr()*100))
                 {
                     //if attacker uninjured strength is not the same as base strength (i.e. modifiers are in effect) or first strikes exist, then
@@ -3628,11 +3649,6 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
                     {
                         szString.append(gDLL->getText("TXT_ACO_DefenseModifiers"));
                     }
-                }//if
-                if (iView & getBugOptionINT("ACO__ShowDefenderInfo", 3, "ACO_SHOW_DEFENDER_INFO"))
-                {
-                    szString.append(NEWLINE);
-                    setUnitHelp(szString, pDefender, true, true);
                 }
 				//if defense modifiers are enabled - recommend leaving this on unless Total defense Modifier is enabled
                 if (iView & getBugOptionINT("ACO__ShowDefenseModifiers", 3, "ACO_SHOW_DEFENSE_MODIFIERS"))
@@ -3672,11 +3688,18 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
 				szDefenseOdds.Format(L"%.2f", pDefender->currCombatStrFloat(pPlot, pAttacker));
 				szString.append(NEWLINE);
 				szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_ODDS_VS", szOffenseOdds.GetCString(), szDefenseOdds.GetCString()));
-
 				// <f1rpo> BtS code replaced with functions shared with ACO
-				appendCombatModifiers(szString, *pPlot, *pAttacker, *pDefender, true, false);
+				/*	Do it like ACO - show the generic modifier of the attacker upfront,
+					then the name of the defending unit, then the rest of the modifiers. */
+				appendCombatModifiers(szString, *pPlot, *pAttacker, *pDefender,
+						true, false, true);
+				szString.append(NEWLINE);
+				szString.append(gDLL->getText("TXT_KEY_MISC_VS"));
+				szString.append(L" ");
+				setUnitHelp(szString, pDefender, true, true, true);
+				appendCombatModifiers(szString, *pPlot, *pAttacker, *pDefender,
+						true, false, false, true);
 				appendFirstStrikes(szString, *pAttacker, *pDefender, false);
-				// </f1rpo>
 				szString.append(gDLL->getText("TXT_KEY_COLOR_POSITIVE"));
 				// Commented out - no problem, I just find it superfluous.
 				/*if (pAttacker->isHurt())
@@ -3949,11 +3972,12 @@ void CvGameTextMgr::appendCombatModifier(CvWStringBuffer& szBuffer,
 		(kParams.m_bOnlyNegative && !bNegativeColor))
 	{
 		return;
-	}	if (kParams.m_bACOEnabled &&
+	}
+	if (//kParams.m_bACOEnabled && // Let's always show the sign how it actually works
 		kParams.m_bAttackModifier && !kParams.m_bGenericModifier)
 	{
-		/*	Non-generic modifiers of the attacker apply -with inverted sign-
-			to the defender, and ACO displays them that way too. */
+		/*	Non-generic modifiers of the attacker apply
+			-with inverted sign- to the defender. */
 		iModifier *= -1;
 	}
 	szBuffer.append(NEWLINE);

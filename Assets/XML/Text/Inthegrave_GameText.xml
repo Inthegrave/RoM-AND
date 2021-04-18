@@ -64,10 +64,19 @@
 	<TEXT>
 		<Tag>TXT_KEY_MISC_FROM_HANDICAP</Tag>
 		<English>[ICON_BULLET]%D1_Change%% from Difficulty Level</English>
-		<French>[ICON_BULLET]%D1_Change%% (niveau de difficulté)</French>
+		<French>[ICON_BULLET]%D1_Change%% (niveau de difficult&#233;)</French>
 		<German>[ICON_BULLET]%D1_Change%% durch Schwierigkeitsgrad</German>
 		<Italian>[ICON_BULLET]%D1_Change%% per il livello di difficolt&#224;</Italian>
 		<Spanish>[ICON_BULLET]%D1_Change%% por nivel de dificultad</Spanish>
+	</TEXT>
+	<!-- Based on TXT_KEY_PROMOTION_VERSUS_TEXT in CIV4GameTextInfos.xml -->
+	<TEXT>
+		<Tag>TXT_KEY_MISC_VS</Tag>
+		<English>vs.</English>
+		<French>contre</French>
+		<German>gegen</German>
+		<Italian>contro</Italian>
+		<Spanish>contra</Spanish>
 	</TEXT>
 	<!-- f1rpo: end -->
 	<!-- Toffer -->
