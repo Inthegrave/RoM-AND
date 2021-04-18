@@ -3628,11 +3628,12 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
                     }
                 }
 				// <f1rpo> Moved into new functions (shared with non-ACO code)
-				appendFirstStrikes(szString, *pAttacker, *pDefender, false);
 				/*	(Generic modifiers of the attacker are the only ones that
 					affect the attacker's combat strength) */
 				appendCombatModifiers(szString, *pPlot, *pAttacker, *pDefender,
 						true, true, true);
+				// Modifiers before 1st strikes (as in BtS)
+				appendFirstStrikes(szString, *pAttacker, *pDefender, false);
 				// Move defender info above the modifier label </f1rpo>
 				if (iView & getBugOptionINT("ACO__ShowDefenderInfo", 3, "ACO_SHOW_DEFENDER_INFO"))
                 {
@@ -3654,11 +3655,13 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
                 if (iView & getBugOptionINT("ACO__ShowDefenseModifiers", 3, "ACO_SHOW_DEFENSE_MODIFIERS"))
                 {
 					// <f1rpo>
-                    appendFirstStrikes(szString, *pDefender, *pAttacker, true);
-					appendCombatModifiers(szString, *pPlot, *pAttacker, *pDefender,
-							false, true);
+					/*	ACO shows modifiers tied to the defender's abilities first,
+						I'm starting with the attacker (as in BtS). */
 					appendCombatModifiers(szString, *pPlot, *pAttacker, *pDefender,
 							true, true, false, true);
+					appendCombatModifiers(szString, *pPlot, *pAttacker, *pDefender,
+							false, true);
+					appendFirstStrikes(szString, *pDefender, *pAttacker, true);
 					// </f1rpo>
                 }
                 if (iView & getBugOptionINT("ACO__ShowTotalDefenseModifier", 2, "ACO_SHOW_TOTAL_DEFENSE_MODIFIER"))
@@ -3700,15 +3703,16 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
 				appendCombatModifiers(szString, *pPlot, *pAttacker, *pDefender,
 						true, false, false, true);
 				appendFirstStrikes(szString, *pAttacker, *pDefender, false);
-				szString.append(gDLL->getText("TXT_KEY_COLOR_POSITIVE"));
 				// Commented out - no problem, I just find it superfluous.
-				/*if (pAttacker->isHurt())
+				/*szString.append(gDLL->getText("TXT_KEY_COLOR_POSITIVE"));
+				if (pAttacker->isHurt())
 				{
 					szString.append(NEWLINE);
 					szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_HP", pAttacker->currHitPoints(), pAttacker->maxHitPoints()));
 				}
 				szString.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));*/
-				appendCombatModifiers(szString, *pPlot, *pAttacker, *pDefender, false, false);
+				appendCombatModifiers(szString, *pPlot, *pAttacker, *pDefender,
+						false, false);
 				appendFirstStrikes(szString, *pDefender, *pAttacker, true);
 				// See above
 				/*szString.append(gDLL->getText("TXT_KEY_COLOR_NEGATIVE"));
@@ -3718,7 +3722,9 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
 					szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_HP", pDefender->currHitPoints(), pDefender->maxHitPoints()));
 				}
 				szString.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));*/
-				// </f1rpo> ((gDLL->getChtLvl() > 0)) // original code
+				// </f1rpo>
+			}
+			//if ((gDLL->getChtLvl() > 0)) // original code
 			// BETTER_BTS_AI_MOD, 06/20/08, jdog5000 (DEBUG): START
 			// Only display this info in debug mode so game can be played with cheat code entered
 			if( GC.getGameINLINE().isDebugMode()
