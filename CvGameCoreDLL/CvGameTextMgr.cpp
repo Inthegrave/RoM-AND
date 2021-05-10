@@ -552,7 +552,9 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit, 
 		char const* szColTag = "COLOR_UNIT_TEXT";
 		if (bCombatOdds)
 		{
-			szColTag = (pUnit->isEnemy(GC.getGameINLINE().getActiveTeam()) ?
+			szColTag = (//pUnit->isEnemy(GC.getGameINLINE().getActiveTeam()) ?
+					// The above wouldn't work well for peacetime combat odds (Alt key)
+					pUnit->getTeam() != GC.getGameINLINE().getActiveTeam() ?
 					"COLOR_NEGATIVE_TEXT" : "COLOR_POSITIVE_TEXT");
 		} // </f1rpo>
 		szTempBuffer.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR(szColTag), pUnit->getName().GetCString());
